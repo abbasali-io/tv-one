@@ -3,6 +3,7 @@ import cv2
 from loguru import logger
 import os
 import time
+import datetime
 import asone.utils as utils
 from asone.trackers import Tracker
 from asone.detectors import Detector
@@ -119,21 +120,26 @@ class ASOne:
                 frame, filter_classes=filter_classes)
             elapsed_time = time.time() - start_time
 
-            logger.info(
-                'frame {}/{} ({:.2f} ms)'.format(frame_id, int(frame_count),
-                                                 elapsed_time * 1000), )
-
-            im0 = utils.draw_boxes(im0, bboxes_xyxy, identities=ids, draw_trails=draw_trails)
+            # logger.info(
+            #     'frame {}/{} ({:.2f} ms)'.format(frame_id, int(frame_count),
+            #                                      elapsed_time * 1000), )
+            im0 = utils.draw_boxes(im0, bboxes_xyxy, class_ids=class_ids, identities=ids, draw_trails=draw_trails)
+            
+            #Log the data
+            # logger.info(class_ids)
+            # logger.debug(ids)
 
             currTime = time.time()
             fps = 1 / (currTime - prevTime)
             prevTime = currTime
-            cv2.line(im0, (20, 25), (127, 25), [85, 45, 255], 30)
-            cv2.putText(im0, f'FPS: {int(fps)}', (11, 35), 0, 1, [
-                        225, 255, 255], thickness=2, lineType=cv2.LINE_AA)
+            # cv2.line(im0, (20, 25), (127, 25), [85, 45, 255], 30)
+            cv2.putText(im0, f'FPS: {int(fps)} // Frm: {int(frame_id)} // Processed At: {datetime.datetime.now()}', (11, 35), 0, .5, [
+                        119, 119, 233], thickness=2, lineType=cv2.LINE_AA)
+
+            cv2.putText(im0, f'Powered by Kiwitech Sdn Bhd', (10, 700), 0, 0.5, [255,255,255], thickness=2, lineType=cv2.LINE_4)
 
             if display:
-                cv2.imshow(' Sample', im0)
+                cv2.imshow(' TrustVision - Detectron Smart Module', im0)
             if save_result:
                 video_writer.write(im0)
 

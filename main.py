@@ -1,16 +1,23 @@
 import argparse
 import asone
+import datetime
+import numpy as np
+import csv
 from asone import ASOne
+from loguru import logger
 
 def main(args):
     filter_classes = args.filter_classes
 
     if filter_classes:
-        filter_classes = [filter_classes]
+        # filter_classes = [filter_classes]
+        filter_classes = ["car"]
 
     dt_obj = ASOne(
-        tracker=asone.BYTETRACK,
+        # tracker=asone.BYTETRACK,
+        tracker=asone.NORFAIR,
         detector=asone.YOLOX_DARKNET_PYTORCH,
+        # detector=asone.YOLOV7_ONNX,
         use_cuda=args.use_cuda
         )
     # Get tracking function
@@ -20,13 +27,28 @@ def main(args):
                                 display=args.display,
                                 draw_trails=args.draw_trails,
                                 filter_classes=filter_classes)
-    
+    vals = []
     # Loop over track_fn to retrieve outputs of each frame 
     for bbox_details, frame_details in track_fn:
+        # print(':)')
         bbox_xyxy, ids, scores, class_ids = bbox_details
         frame, frame_num, fps = frame_details
-        print(frame_num)
+        # logger.info('Frame No. %s, IDs:%s, Classes: %s' % (frame_num, ids, class_ids))
+        # logger.debug(class_ids)
+        val = ('%s, %s, %s, %s' % (datetime.datetime.now(), frame_num, ids, class_ids))
+        logger.info(val)
+        vals.append(val)
+    
+    logger.debug(vals)
+    with open ('output.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['datetime, frame_num, object_id, class_id'])
+        for val in vals:
+            logger.info('erm')
+            writer.writerow([val])
         
+    
+    # write the vals array to the csv file
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

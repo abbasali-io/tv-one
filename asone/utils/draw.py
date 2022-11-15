@@ -4,6 +4,8 @@ import numpy as np
 from asone.utils import compute_color_for_labels
 from asone.utils import get_names
 from collections import deque
+from loguru import logger
+
 
 names = get_names()
 data_deque = {}
@@ -74,6 +76,7 @@ def draw_border(img, pt1, pt2, color, thickness, r, d):
 def draw_boxes(img, bbox_xyxy, class_ids=None, identities=None, draw_trails=False, offset=(0, 0)):
     # cv2.line(img, line2[0], line2[1], (0,200,0), 3)
     height, width, _ = img.shape
+    
 
     # remove tracked point from buffer if object is lost
     if draw_trails:
@@ -97,10 +100,12 @@ def draw_boxes(img, bbox_xyxy, class_ids=None, identities=None, draw_trails=Fals
         color = compute_color_for_labels(0)
         
         label = None
+        
         if class_ids is not None:
             color = compute_color_for_labels(int(class_ids[i]))
             obj_name = names[int(class_ids[i])]
-            label = '%s' % (obj_name)            
+            label = '%s- %s' % (id, obj_name)         
+        # logger.info(label)   
         draw_ui_box(box, img, id=id, label=label, color=color, line_thickness=2)
 
         # Draw trails        
